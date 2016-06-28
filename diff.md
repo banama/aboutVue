@@ -1,14 +1,14 @@
 Vue列表渲染性能优化原理
 
-Vue是一个高效的mvvm框架，这得益于作者已经帮我们框架内部做了足够的优化，比如各个细节的缓存(parseText结果的缓存，compile编译结果的缓存等)。
+Vue 是一个高效的 mvvm 框架，这得益于作者已经帮我们框架内部做了足够的优化，比如各个细节的缓存( parseText 结果的缓存，compile 编译结果的缓存等)。
 
-大列表是容易造成性能问题的地方，一不小心就会造成大量的重绘和重排。Vue的列表渲染实现在for指令的update方法， 性能优化的大部分细节在[diff](https://github.com/vuejs/vue/blob/e9872271fa9b2a8bec1c42e65a2bb5c4df808eb2/src/directives/public/for.js#L106)函数。
+大列表是容易造成性能问题的地方，一不小心就会造成大量的重绘和重排。Vue 的列表渲染实现在 v-for 指令的 update 方法， 性能优化的大部分细节在 [diff](https://github.com/vuejs/vue/blob/e9872271fa9b2a8bec1c42e65a2bb5c4df808eb2/src/directives/public/for.js#L106) 函数。
 
-列表渲染时会为迭代列表的每一份数据并未他们生成各自对应的片段对象frag，frag.node为片段对象的DOM元素。 
+列表渲染时会为迭代列表的每一份数据并为他们生成各自对应的片段对象 frag ，frag.node 为片段对象的 DOM 元素。
 
 ##frag缓存和track-by
 
-在列表渲染过程中，当列表数据发生变化时，为了避免frag的重复创建和大规模的重新渲染，Vue会尽可能复用缓存的frag，高效的缓存frag命中率也是DOM元素复用的关键。
+在列表渲染过程中，当列表数据发生变化时，为了避免 frag 的重复创建和大规模的重新渲染， Vue 会尽可能复用缓存的 frag ，高效的缓存 frag 命中率也是 DOM 元素复用的关键。
 
 以下例子
 
@@ -24,7 +24,7 @@ new Vue({
 			model: [1, 2, 3]
 		}
 	}
-	
+
 })
 ```
 当这个组件中的列表首次渲染时，Vue 会将[创建](https://github.com/vuejs/vue/blob/e9872271fa9b2a8bec1c42e65a2bb5c4df808eb2/src/directives/public/for.js#L264)的 frag 缓存到 [dir.cache](https://github.com/vuejs/vue/blob/e9872271fa9b2a8bec1c42e65a2bb5c4df808eb2/src/directives/public/for.js#L80) 。默认通过数据对象的特征来决定对已有作用域和 DOM 元素的复用程度。例如当数据对象为Array时，缓存 id 为数组的 value ，当数据对象为 Object 时，缓存 id 为对象的 $key 。对于这个例子来说三个缓存 id 为1、2、3。
@@ -130,10 +130,10 @@ index => 0
 	targetPrv 	= undefined
 	current 	= 7
 	currentPrv	= 6
-	
+
 	undefined !== 6
 		move(7, 0)
-		
+
 	old [7, 1, 2, 3, 4, 5, 6]
 
 我们发现只需移动一次就得到想要结果。
@@ -154,22 +154,22 @@ index => 0
 	targetPrv 	= 1
 	current 	= 1
 	currentPrv	= undefined
-	
+
 	1 !== undefined
 		move(1, 0)
-		
+
 	old [2, 1, 3, 4, 5, 6, 7]
-	
+
 index => 1
 
 	target 		= 3
 	targetPrv 	= 2
 	current 	= 3
 	currentPrv	= 1
-	
+
 	2 !== 1
 		move(3］ 1)
-		
+
 	old [2, 3, 1, 4, 5, 6, 7]
 
 ......
@@ -180,12 +180,12 @@ old [2, 3, 4, 5, 6, 1, 7]	index => 6
 	targetPrv 	= 6
 	current 	= 7
 	currentPrv	= 1
-	
+
 	6 !== 1
 		move(7, 6)
-		
+
 	old [2, 3, 4, 5, 6, 7, 1]
-	
+
 直到最后我们的发现，直到移动了7次才得到想要的结果，第一个元素每一次移动都向后冒泡，成功的混淆了每一次判断结果。这个问题在[isseuse#1807](https://github.com/vuejs/vue/issues/1807)有详细说明。
 
 如果我们能忽略第一次移动，那么之后的每一次判断都会成功
@@ -200,12 +200,12 @@ index = 1
 	targetPrv 	= 2
 	current 	= 3
 	currentPrv	= 2
-	
+
 	2 !== 2
 		move(3, 1)
-		
+
 	old [2, 3, 4, 5, 6, 7, 1]
-	
+
 ......
 
 old [2, 3, 4, 5, 6, 7, 1]	index = 6
@@ -214,12 +214,12 @@ old [2, 3, 4, 5, 6, 7, 1]	index = 6
 	targetPrv 	= 7
 	current 	= 1
 	currentPrv	= undefined
-	
+
 	7 !== undefined
 		move(1, 6)
-		
+
 	old [2, 3, 4, 5, 6, 7, 1]
-	
+
 这样的结果才是我们想要的。
 
 现在 Vue 判断移动的条件是
@@ -238,6 +238,6 @@ Vue 已经为我们做了大量无脑优化，主要在提高 DOM 元素的复�
 
 但是优化方式也十分简单，即给v-for列表加一个 `track-by` 属性，提示Vue 如何判断对象时同一份数据，提高缓存命中率。甚至可以直接加 `track-by="$index"` 原位复用DOM元素，这种优化效率最高，但是副作用上文中也说了，会丢失原DOM元素的临时状态组件私有状态，因此在交互复杂的列表中可能会有意想不到的问题，这时使用`非$index的track-by`也可以做到尽可能的性能优化。
 
-	
+
 
 
