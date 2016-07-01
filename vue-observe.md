@@ -125,7 +125,7 @@ vm.model = function(){
 ## 追踪(订阅)
 
 
-看这个demo
+看这个 [demo](https://jsfiddle.net/xcd8b8yd/1)
 <iframe width="100%" height="500" src="https://jsfiddle.net/xcd8b8yd/1/embedded/result,html,js" allowfullscreen="allowfullscreen" frameborder=0></iframe>
 
 
