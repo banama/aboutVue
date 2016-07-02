@@ -125,7 +125,8 @@ vm.model = function(){
 ## 追踪(订阅)
 
 
-看这个[demo](https://jsfiddle.net/xcd8b8yd/1/)
+看这个 [demo](https://jsfiddle.net/xcd8b8yd/1)
+<iframe width="100%" height="500" src="https://jsfiddle.net/xcd8b8yd/1/embedded/result,html,js" allowfullscreen="allowfullscreen" frameborder=0></iframe>
 
 
 上文中讲到 Vue 是先定义响应式数据 ，然后再解析指令的过程中收集依赖。但在上面例子中的 demo1 组件在声明周期 ready 的时候，依赖收集的过程已经执行完毕，这时候为 vm 挂载一个属性，这个属性一定不是响应式的。但是 Vue 提供了动态添加响应的 api ，上面例子中 demo2 组件就是这样一个例子，但是`$set`到底做了什么。
