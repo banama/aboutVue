@@ -105,4 +105,4 @@ $emit 返回 shouldPropagate，shouldPropagate 是一个布尔值，取决于父
 
 查看这个 [demo](https://jsfiddle.net/banama/43tswmdo/) 。
 
-可见 v-on 指令既可为DOM元素绑定事件也可为组件绑定自定义事件。明白了这个，这个[issuse](https://github.com/vuejs/vue/issues/3098) 的原因也就很明了了。
+可见 v-on 指令既可为DOM元素绑定事件也可为组件绑定自定义事件。明白了这个，这个[issue](https://github.com/vuejs/vue/issues/3098) 的原因也就很明了了。
